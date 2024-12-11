@@ -1,0 +1,912 @@
+
+\documentclass[a4paper,titlepage,12pt,oneside]{scrbook}
+\usepackage{textcomp,graphicx}
+\usepackage[ngerman]{babel}
+\usepackage{wrapfig}
+\usepackage[hang]{subfigure}
+\usepackage[ansinew]{inputenc}
+\usepackage{amsmath, amsthm}
+\usepackage{amsmath,esint} 
+\usepackage{amsfonts}   
+\usepackage{amssymb}
+\usepackage{hyperref}
+\usepackage{dsfont}
+\usepackage{slashed}
+\usepackage {picins} 
+\usepackage{tikz}
+\usepackage{tikz-3dplot}
+\usepackage{eurosym} 
+\usepackage{pgfplots}  
+\usepackage{wasysym}
+\usepackage[misc]{ifsym} 
+\usepackage{fixmath}
+\usepackage{romannum}  
+
+\usepackage{array,multirow,graphicx} 
+
+  \usepackage{tfrupee} 
+\usepackage{tkz-euclide}
+\usetkzobj{all}
+
+
+\usepackage{epsdice}
+ 
+
+
+\usetikzlibrary{3d,calc}
+\usetikzlibrary{decorations.pathreplacing,calc} 
+
+
+\usepackage[toc,page]{appendix}
+
+ 
+
+
+\setlength{\parindent}{0pt}
+
+
+
+\setcounter{totalnumber}{8}
+
+
+
+\hypersetup{
+    colorlinks=false,       % false: boxed links; true: colored links
+    linkcolor=black,          % color of internal links
+    citecolor=black,        % color of links to bibliography
+    filecolor=black,      % color of file links
+    urlcolor=green          % color of external links
+}
+
+\usepackage{titlesec}
+\usetikzlibrary{calc, intersections, snakes}
+
+\titleformat{\chapter}{\bf\LARGE}{\thechapter\quad}{0em}{}
+\linespread{1.2}
+
+
+
+\usepackage[a4paper,left=2.5cm,right=2.5cm,top=2.5cm,bottom=3cm]{geometry}
+
+
+
+\newcommand\kariert[2][0.5cm]{% 
+   \begin{tikzpicture}[gray,step=#1]
+     \pgfmathtruncatemacro\anzahl{(\linewidth-\pgflinewidth)/#1} % maximale Anzahl Kästchen pro Zeile
+     \draw (0,0) rectangle (\anzahl*#1,#2*#1) (0,0) grid (\anzahl*#1,#2*#1);
+   \end{tikzpicture} 
+}
+
+\newcommand{\liniert}[2][0.5cm]{% 
+  \begin{tikzpicture}[gray]
+  \path[use as bounding box](0,0)rectangle(\linewidth,-#2*#1-0.5\pgflinewidth); 
+   \foreach \n in {1,...,#2}\draw(0 ,-#1*\n )--(\linewidth,-#1*\n ); 
+  \end{tikzpicture}}
+
+
+
+\newcommand\markangle[6][red]{% [color] {X} {origin} {Y} {mark} {radius}
+ % filled circle: red by default
+  \begin{scope}
+  \path[clip] (#2) -- (#3) -- (#4);
+  \fill[color=#1,fill = white,draw=#1,name path=circle] %opacity=0.5
+  (#3) circle (#6mm);
+   \end{scope}
+   % middle calculation
+   \path[name path=line one] (#3) -- (#2);
+  \path[name path=line two] (#3) -- (#4);
+\path[%
+name intersections={of=line one and circle, by={inter one}},
+ name intersections={of=line two and circle, by={inter two}}
+ ] (inter one) -- (inter two) coordinate[pos=.5] (middle);
+ % bissectrice definition
+ \path[%
+name path=bissectrice
+] (#3) -- (barycentric cs:#3=-1,middle=1.2);
+ % put mark
+ \path[
+ name intersections={of=bissectrice and circle, by={middleArc}}
+ ] (#3) -- (middleArc) node[pos=0.6] {#5}; % node[pos=1.3]
+ }
+ 
+ 
+
+
+
+
+
+
+
+
+
+\newcommand{\tikzmark}[2][-3pt]{\tikz[remember picture, overlay, baseline=-0.5ex]\node[#1](#2){};}
+
+\tikzset{brace/.style={decorate, decoration={brace}},
+ brace mirrored/.style={decorate, decoration={brace,mirror}},
+}
+
+\newcounter{brace}
+\setcounter{brace}{0}
+\newcommand{\drawbrace}[3][brace]{%
+ \refstepcounter{brace}
+ \tikz[remember picture, overlay]\draw[#1] (#2.center)--(#3.center)node[pos=0.5, name=brace-\thebrace]{};
+}
+
+\newcounter{arrow}
+\setcounter{arrow}{0}
+\newcommand{\drawcurvedarrow}[3][]{%
+ \refstepcounter{arrow}
+ \tikz[remember picture, overlay]\draw (#2.center)edge[#1]node[coordinate,pos=0.5, name=arrow-\thearrow]{}(#3.center);
+}
+
+% #1 options, #2 position, #3 text 
+\newcommand{\annote}[3][]{%
+ \tikz[remember picture, overlay]\node[#1] at (#2) {#3};
+}
+
+
+
+
+\usepackage{xparse}
+\usepackage{mathtools}
+
+\makeatletter
+\newlength\fib@width
+\def\fib@widthfactor{1.75}
+\newif\iffibhideanswer
+\fibhideanswertrue
+\tikzset{
+   every fill in box/.style={
+     inner xsep=0pt,
+     minimum height=3ex,
+     align=center,
+     font={\sffamily\slshape},
+   },
+   colored box/.style={
+      every fill in box,
+      fill=blue!35!white,
+   },
+   framed box/.style={
+      every fill in box,
+      draw,
+   },
+   underline style/.style={},
+   underlined box/.style={
+      every fill in box,
+      append after command={%
+         \pgfextra{\begin{pgfinterruptpath}
+            \draw [underline style] (\tikzlastnode.south west)
+                  -- (\tikzlastnode.south east);
+         \end{pgfinterruptpath}}
+      },
+   },
+   bracket style/.style={},
+   underbracked box/.style={
+      every fill in box,
+      append after command={%
+         \pgfextra{\begin{pgfinterruptpath}
+            \draw [bracket style] ($(\tikzlastnode.south west)+(0,2pt)$)
+                  |- (\tikzlastnode.south)
+                  -| ($(\tikzlastnode.south east)+(0,2pt)$);
+         \end{pgfinterruptpath}}
+      },
+   },
+   underoverbracked box/.style={
+      every fill in box,
+      append after command={%
+         \pgfextra{\begin{pgfinterruptpath}
+            \draw [bracket style] ($(\tikzlastnode.north west)-(0,2pt)$)
+                  |- (\tikzlastnode.north)
+                  -| ($(\tikzlastnode.north east)-(0,2pt)$);
+            \draw [bracket style] ($(\tikzlastnode.south west)+(0,2pt)$)
+                  |- (\tikzlastnode.south)
+                  -| ($(\tikzlastnode.south east)+(0,2pt)$);
+         \end{pgfinterruptpath}}
+      },
+   },
+   fill in/.style={
+      colored box,
+   },
+}
+\NewDocumentCommand { \fib@hide } { m } {%
+   \iffibhideanswer
+      \phantom{#1}%
+   \else
+      #1%
+   \fi
+}
+\NewDocumentCommand { \fib@makebox }{ m }{%
+   \settowidth{\fib@width}{\tikz\node[fill in]{#1};}%
+   \begin{tikzpicture}[baseline=(fill in node.base)]
+      \node (fill in node) [text width=\fib@widthfactor*\fib@width,fill in] {%
+         \fib@hide{#1}%
+      };
+   \end{tikzpicture}%
+}
+\NewDocumentCommand { \fib } { s d{<}{>} o m }{{%
+   \IfBooleanT{#1}{\fibhideanswerfalse}%
+   \IfValueT{#2}{\only<#2>{\fibhideanswerfalse}}%
+   \IfValueT{#3}{\tikzset{fill in/.style={#3}}}%
+   \ifmmode
+      \mathchoice
+         {\fib@makebox{$\displaystyle#4$}}
+         {\fib@makebox{$\textstyle#4$}}
+         {\fib@makebox{$\scriptstyle#4$}}
+         {\fib@makebox{$\scriptscriptstyle#4$}}
+   \else
+      \fib@makebox{#4}%
+   \fi
+   \IfValueT{#2}{}%
+}}
+\makeatother
+
+
+
+
+
+
+ \setcounter{tocdepth}{1}
+ 
+
+
+
+
+
+
+% Three counters
+\newcounter{xcube}
+\newcounter{ycube}
+\newcounter{zcube}
+
+% The angles of x,y,z-axes
+\newcommand\xaxis{210}
+\newcommand\yaxis{-30}
+\newcommand\zaxis{90}
+
+% The top side of a cube
+\newcommand\topside[3]{
+  \fill[fill=green!45, draw=black,shift={(\xaxis:#1)},shift={(\yaxis:#2)},
+  shift={(\zaxis:#3)}] (0,0) -- (30:1) -- (0,1) --(150:1)--(0,0);
+}
+
+% The left side of a cube
+\newcommand\leftside[3]{
+  \fill[fill=red!45, draw=black,shift={(\xaxis:#1)},shift={(\yaxis:#2)},
+  shift={(\zaxis:#3)}] (0,0) -- (0,-1) -- (210:1) --(150:1)--(0,0);
+}
+
+% The right side of a cube
+\newcommand\rightside[3]{
+  \fill[fill=blue!45, draw=black,shift={(\xaxis:#1)},shift={(\yaxis:#2)},
+  shift={(\zaxis:#3)}] (0,0) -- (30:1) -- (-30:1) --(0,-1)--(0,0);
+}
+
+% The cube 
+\newcommand\cube[3]{
+  \topside{#1}{#2}{#3} \leftside{#1}{#2}{#3} \rightside{#1}{#2}{#3}
+}
+
+% Definition of \planepartition
+% To draw the following plane partition, just write \planepartition{ {a, b, c}, {d,e} }.
+%  a b c
+%  d e
+\newcommand\planepartition[1]{
+ \setcounter{xcube}{-1}
+  \foreach \a in {#1} {
+    \addtocounter{xcube}{1}
+    \setcounter{ycube}{-1}
+    \foreach \b in \a {
+      \addtocounter{ycube}{1}
+      \setcounter{zcube}{-1}
+      \foreach \c in {1,...,\b} {
+        \addtocounter{zcube}{1}
+        \cube{\value{xcube}}{\value{ycube}}{\value{zcube}}
+      }
+    }
+  }
+}
+
+
+
+\usepackage{yfonts} 
+ 
+\usetikzlibrary{calc, intersections}
+
+
+\usepackage[europeanresistors,cuteinductors,fulldiodes,siunitx]{circuitikz}
+
+  
+
+ 
+ 
+
+\usetikzlibrary{shadows.blur}
+\usetikzlibrary{shapes.symbols}
+
+ 
+ 
+\usetikzlibrary{arrows.meta}
+
+
+\begin{document}  
+
+
+\definecolor{almond}{rgb}{0.94, 0.87, 0.8}
+\definecolor{myblue}{HTML}{92dcec} 
+\pagenumbering{arabic} 
+
+
+
+\def\bitcoinA{%
+  \leavevmode
+  \vtop{\offinterlineskip %\bfseries
+    \setbox0=\hbox{B}%
+    \setbox2=\hbox to\wd0{\hfil\hskip-.03em
+    \vrule height .3ex width .15ex\hskip .08em
+    \vrule height .3ex width .15ex\hfil}
+    \vbox{\copy2\box0}\box2}}
+        
+    \pagestyle{empty}
+     
+		 
+%\begin{minipage}{0.48\textwidth}
+%\end{minipage}%
+%\hfill 
+%\begin{minipage}{0.48\textwidth}
+%\end{minipage}%
+%\hfill  
+		 
+
+%%% , rounded corners=6pt, blur shadow={shadow blur steps=5,shadow blur extra rounding=1.3pt}, text width=3cm
+
+%\begin{tikzpicture}[scale=1,>=latex] 
+%\end{tikzpicture} 
+
+%\definecolor{almond}{rgb}{0.94, 0.87, 0.8}
+
+%\scalebox{.5}{}      to[out=290,in=110]     \rule{0pt}{20pt} 
+
+%  \begin{scope}[yshift=-0.25cm,xshift=-0.25cm] \shade[ball color=red!100!white, opacity=0.99] (0,0) circle (0.2cm) node {$+$};  \end{scope}    ,shorten >=\z
+
+%   \begin{align*}     \end{align*} 
+
+
+ 
+\begin{table*}[htbp]
+\centering
+    \begin{tabular}{ c  c  c  }
+     IQSH-Handreichung & \qquad\qquad\qquad\qquad\qquad\qquad\qquad  \qquad\qquad\qquad\quad  & Prozentrechnung 		 \\ \hline\hline
+    \end{tabular}
+\end{table*} \vspace{-1.25em}
+
+\begin{center}
+\Large \textbf{- Erarbeitung von prozentualen Anteilen -} \\
+\end{center} 
+
+\vspace{0.75em}
+
+
+\begin{minipage}{0.04\textwidth}
+\includegraphics[width=0.99 \textwidth]{Work.png}   \vspace{-0.5em}
+\end{minipage}%
+\hfill 
+\begin{minipage}{0.95\textwidth}
+\textbf{Aufgabe 1:} Gib die Zahlen in der Prozentdarstellung an.
+\end{minipage}%   
+
+
+ \begin{align*}
+& a) \;\; 0,06=   	\qquad\qquad\qquad\qquad\,	&&b) \;\; 0,96=    \qquad\qquad\qquad\qquad\;\;	&&c) \;\; 0,7  =      \qquad\qquad\qquad\qquad \\
+& d) \;\; \frac{1}{4}=     	\qquad\qquad\qquad\;\;\;\;\;\,	&&e) \;\; \frac{17}{20} =    \qquad\qquad\qquad\quad\,	&&f) \;\; \frac{3}{5}=    \qquad\qquad\qquad\qquad \\
+& g) \;\; 0,6541 =   	\qquad\qquad\qquad\quad  	&&h) \;\; 7  =   \qquad\qquad\qquad\quad\;	&&i) \;\; \frac{11}{9}  = \qquad\qquad\qquad\qquad  
+\end{align*} 
+ 
+\vspace{2em}
+
+
+\begin{minipage}{0.04\textwidth}
+\includegraphics[width=0.99 \textwidth]{Work.png}   \vspace{-0.5em}
+\end{minipage}%
+\hfill 
+\begin{minipage}{0.95\textwidth}
+\textbf{Aufgabe 2:} Gib die Zahlen in der gekürzten Bruch- und Dezimalzahldarstellung an.
+\end{minipage}%   
+
+
+ \begin{align*}
+& a) \;\; 30\%=   	\qquad\qquad\qquad\qquad\qquad\quad\;\;	&&b) \;\; 6,25\%=    \\ &&& \\
+&c) \;\; 44,\bar{4}\%  =  \qquad\qquad\qquad\qquad\qquad\quad\;\;	&&d) \;\; 125\%  =    \qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad  \qquad\qquad\qquad\qquad  
+\end{align*} 
+
+
+\vspace{2em}
+
+
+
+
+\begin{minipage}{0.1\textwidth}
+\includegraphics[width=0.4 \textwidth]{Kompass.png} 
+\includegraphics[width=0.4 \textwidth]{Work.png}   \vspace{1em}
+\end{minipage}%
+\hfill 
+\begin{minipage}{0.89\textwidth}
+\textbf{Aufgabe 3:} Gib den dargestellten roten Anteil vom Ganzen in der Prozentdarstellung an.
+\end{minipage}%   
+
+ 
+
+\begin{center}
+\begin{tikzpicture}[scale=1,>=latex]
+
+\begin{scope}[xshift=0cm]
+\draw[thick,fill=red,opacity=0.5] (0,0) -- (0:1)  arc (0:90:1) -- (0,0); 
+\draw[thick,fill=red,opacity=0.5] (0,0) -- (180:1)  arc (180:225:1) -- (0,0); 
+\foreach \n in {45,90,...,360} { \draw[opacity=0.5,rotate=\n] (0,0) -- (0:1)  arc (0:45:1) -- (0,0); } 
+\draw[thick] (0,0) circle (1cm); 
+\node at (-1.25,1) {$a)$};	
+\end{scope}
+
+\begin{scope}[xshift=3cm]
+\draw[thick,fill=red,opacity=0.5] (0,0) -- (270:1)  arc (270:330:1) -- (0,0); 
+\draw[thick,fill=red,opacity=0.5] (0,0) -- (180:1)  arc (180:210:1) -- (0,0); 
+\draw[thick,fill=red,opacity=0.5] (0,0) -- (90:1)  arc (90:150:1) -- (0,0); 
+\foreach \n in {30,60,...,360} { \draw[opacity=0.5,rotate=\n] (0,0) -- (0:1)  arc (0:30:1) -- (0,0); } 
+\draw[thick] (0,0) circle (1cm); 
+\node at (-1.25,1) {$b)$};	
+\end{scope}
+
+\begin{scope}[xshift=6cm]
+\draw[thick,fill=white,opacity=0.5] (0,0) rectangle (0.5,0.5);  
+\draw[thick,fill=red,opacity=0.5] (0,0.5) rectangle (.5,1);  
+\draw[thick,fill=white,opacity=0.5] (0.5,0) rectangle (1,.5);  
+\draw[thick,fill=red,opacity=0.5] (0.5,0.5) rectangle (1,1);   
+\begin{scope}[xshift=-1cm]
+\draw[thick,fill=white,opacity=0.5] (0,0) rectangle (0.5,0.5);  
+\draw[thick,fill=white,opacity=0.5] (0,0.5) rectangle (.5,1);  
+\draw[thick,fill=white,opacity=0.5] (0.5,0) rectangle (1,.5);  
+\draw[thick,fill=white,opacity=0.5] (0.5,0.5) rectangle (1,1);
+\end{scope}   
+\begin{scope}[yshift=-1cm]
+\draw[thick,fill=red,opacity=0.5] (0,0) rectangle (0.5,0.5);  
+\draw[thick,fill=white,opacity=0.5] (0,0.5) rectangle (.5,1);  
+\draw[thick,fill=white,opacity=0.5] (0.5,0) rectangle (1,.5);  
+\draw[thick,fill=red,opacity=0.5] (0.5,0.5) rectangle (1,1);   
+\begin{scope}[xshift=-1cm]
+\draw[thick,fill=red,opacity=0.5] (0,0) rectangle (0.5,0.5);  
+\draw[thick,fill=white,opacity=0.5] (0,0.5) rectangle (.5,1);  
+\draw[thick,fill=white,opacity=0.5] (0.5,0) rectangle (1,.5);  
+\draw[thick,fill=white,opacity=0.5] (0.5,0.5) rectangle (1,1);
+\end{scope} \end{scope}   
+\node at (-1.25,1) {$c)$};	
+\end{scope}
+
+\begin{scope}[xshift=9cm]
+\draw[thick,fill=white,opacity=0.5] (0,0) rectangle (0.5,0.5);  
+\draw[thick,fill=red,opacity=0.5] (0,0.5) rectangle (.5,1);  
+\draw[thick,fill=white,opacity=0.5] (0.5,0) rectangle (1,.5);  
+\draw[thick,fill=red,opacity=0.5] (0.5,0.5) rectangle (1,1);   
+\begin{scope}[xshift=-1cm]
+\draw[thick,fill=white,opacity=0.5] (0,0) rectangle (0.5,0.5);  
+\draw[thick,fill=red,opacity=0.5] (0,0.5) rectangle (.5,1);  
+\draw[thick,fill=white,opacity=0.5] (0.5,0) rectangle (1,.5);  
+\draw[thick,fill=white,opacity=0.5] (0.5,0.5) rectangle (1,1);
+\end{scope}     
+\begin{scope}[xshift=1cm]
+\draw[thick,fill=white,opacity=0.5] (0,0) rectangle (0.5,0.5);  
+\draw[thick,fill=white,opacity=0.5] (0,0.5) rectangle (.5,1);   
+\end{scope}   
+\begin{scope}[yshift=-1cm]
+\draw[thick,fill=red,opacity=0.5] (0,0) rectangle (0.5,0.5);  
+\draw[thick,fill=white,opacity=0.5] (0,0.5) rectangle (.5,1);  
+\draw[thick,fill=white,opacity=0.5] (0.5,0) rectangle (1,.5);  
+\draw[thick,fill=red,opacity=0.5] (0.5,0.5) rectangle (1,1);   
+\begin{scope}[xshift=-1cm]
+\draw[thick,fill=red,opacity=0.5] (0,0) rectangle (0.5,0.5);  
+\draw[thick,fill=white,opacity=0.5] (0,0.5) rectangle (.5,1);  
+\draw[thick,fill=red,opacity=0.5] (0.5,0) rectangle (1,.5);  
+\draw[thick,fill=white,opacity=0.5] (0.5,0.5) rectangle (1,1);
+\end{scope}   
+\begin{scope}[xshift=1cm]
+\draw[thick,fill=red,opacity=0.5] (0,0) rectangle (0.5,0.5);  
+\draw[thick,fill=red,opacity=0.5] (0,0.5) rectangle (.5,1);   
+\end{scope} \end{scope}   
+\node at (-1.25,1) {$d)$};	
+\end{scope}
+
+
+
+\begin{scope}[xshift=11.5cm]\begin{scope}[yshift=-1cm]
+\draw[thick,fill=white,opacity=0.5] (0,0) rectangle (0.5,2); 
+\draw[thick,fill=red,opacity=0.5] (0.5,0) rectangle (1,2); 
+\draw[thick,fill=white,opacity=0.5] (1,0) rectangle (1.5,2); 
+\draw[thick,fill=white,opacity=0.5] (1.5,0) rectangle (2,2); 
+\draw[thick,fill=red,opacity=0.5] (2,0) rectangle (2.5,2); 
+\draw[thick,fill=white,opacity=0.5] (2.5,0) rectangle (3,2); 
+\draw[thick,fill=white,opacity=0.5] (3,0) rectangle (3.5,2); 
+\end{scope}      
+\node at (-0.25,1) {$e)$};	\end{scope}
+
+\end{tikzpicture}
+\end{center}
+
+
+
+\vspace{2em}
+
+
+\begin{minipage}{0.1\textwidth}
+\includegraphics[width=0.4 \textwidth]{Kompass.png} 
+\includegraphics[width=0.4 \textwidth]{Work.png}   \vspace{1em}
+\end{minipage}%
+\hfill 
+\begin{minipage}{0.89\textwidth}
+\textbf{Aufgabe 4:} Beantworte die Fragen und beschreibe die Auffälligkeit.
+\end{minipage}%   
+
+
+
+ \begin{align*}
+ &a) \;\;  \begin{array}{l} \text{Wie viel sind $10\%$ von $50$?}  \\ \text{Wie viel sind $50\%$ von $10$?}   \end{array} \qquad 
+&&b) \;\;  \begin{array}{l} \text{Wie viel sind $17\%$ von $100$?}  \\ \text{Wie viel sind $100\%$ von $17$?}   \end{array}  \\  &&& \\
+ &c) \;\;  \begin{array}{l} \text{Wie viel sind $8\%$ von $25$?}  \\ \text{Wie viel sind $25\%$ von $8$?}   \end{array}  \qquad 
+&&d) \;\;  \begin{array}{l} \text{Wie viel sind $7\%$ von $800$?}  \\ \text{Wie viel sind $800\%$ von $7$?}   \end{array}    \qquad \qquad \qquad \qquad \qquad \qquad \qquad \qquad \qquad \qquad \qquad \qquad 
+\end{align*} 
+\vspace{1em}
+
+
+
+ 
+
+\newpage
+
+ 
+\begin{table*}[htbp]
+\centering
+    \begin{tabular}{ c  c  c  }
+     IQSH-Handreichung & \qquad\qquad\qquad\qquad\qquad\qquad\qquad  \qquad\qquad\qquad\quad  & Prozentrechnung 		 \\ \hline\hline
+    \end{tabular}
+\end{table*} \vspace{-1.25em}
+
+\begin{center}
+\Large \textbf{- Erarbeitung von prozentualen Anteilen -} \\
+\end{center} 
+
+\vspace{0.75em}
+
+
+
+\begin{minipage}{0.1\textwidth}
+\includegraphics[width=0.4 \textwidth]{Kompass.png} 
+\includegraphics[width=0.4 \textwidth]{Work.png}   \vspace{1em}
+\end{minipage}%
+\hfill 
+\begin{minipage}{0.89\textwidth}
+\textbf{Aufgabe 5:} Beantworte die Fragen und beschreibe die Auffälligkeit.
+\end{minipage}%   
+
+
+
+$a)\; \begin{array}{l} \text{Wie viel sind $\frac{1}{2}$ von $100$?} \\ \text{Wie viel sind $\frac{1}{2}$ von $50$?}  \\  \text{Wie viel sind $\frac{1}{2}$ von $\frac{1}{2}$ von $100$?}  \end{array}$ \qquad \qquad  $b)\; \begin{array}{l} \text{Wie viel sind $30\%$ von $100$?} \\ \text{Wie viel sind $50\%$ von $30$?}  \\  \text{Wie viel sind $30\%$ von $50\%$ von $100$?}  \end{array}$   \\
+
+\vspace{0.8em}
+
+$c)\; \begin{array}{l} \text{Wie viel sind $75\%$ von $100\%$?} \\ \text{Wie viel sind $66,\bar{6}\%$ von $75\%$?}  \\  \text{Wie viel sind $20\%$ von $50\%$?} \\  \text{Wie viel sind $75\%$ von $66,\bar{6}\%$ von $20\%$ von $100\%$?}  \end{array}$  \\
+
+\vspace{2em}
+
+
+ 
+
+
+% \begin{align*}   \end{align*} 
+
+
+\vspace{2em}
+
+
+
+
+\begin{minipage}{0.1\textwidth}
+\includegraphics[width=0.4 \textwidth]{Kompass.png} 
+\includegraphics[width=0.4 \textwidth]{Work.png}   \vspace{1em}
+\end{minipage}%
+\hfill 
+\begin{minipage}{0.89\textwidth}
+\textbf{Aufgabe 6:} Fülle die Lücken im Lückentext so aus, dass die beiden Aussagen zusammen stimmen.
+\end{minipage}%   
+
+ 
+\vspace{1em}
+		
+$a)\;\;$ Ein ganzer Kreis hat $360^\circ$, somit hat ein Sechstel Kreis $\fib{100000}$.  \\
+$b)\;\;$ $180^\circ$ bei einem Kreis entsprechen $50\%$ vom Kreis. $\fib{100000}$ entsprechen $1\%$ von einem Kreis.   \\
+$c)\;\;$ $2000$\EUR{} entsprechen $100\%$, dann entsprechen $\fib{100000}$ $1\%$.   \\
+$d)\;\;$ Wenn $400\,$m als $20\%$ verstanden werden, dann sind $\fib{100000}$ als $100\%$ zu verstehen.  \\		
+		
+		
+ 
+
+
+		 
+\vspace{3em}
+ 
+
+
+\begin{minipage}{0.1\textwidth}
+\includegraphics[width=0.4 \textwidth]{Work.png} 
+\includegraphics[width=0.4 \textwidth]{Puzzle.png}   \vspace{1em}
+\end{minipage}%
+\hfill 
+\begin{minipage}{0.89\textwidth}
+\textbf{Aufgabe 7:} Fülle die Lücken im Lückentext so aus, dass die Aussage auf die Skizze zu trifft.
+\end{minipage}%   
+
+
+\vspace{1em}
+
+
+
+\begin{minipage}{0.25\textwidth}
+\begin{center}
+\begin{tikzpicture}[scale=1,>=latex]
+ 
+\begin{scope}[xshift=0cm]
+\draw[thick,fill=white,opacity=0.5] (0,0) rectangle (0.5,0.5);  
+\draw[thick,fill=white,opacity=0.5] (0,0.5) rectangle (.5,1);  
+\draw[thick,fill=white,opacity=0.5] (0.5,0) rectangle (1,.5);  
+\draw[thick,fill=white,opacity=0.5] (0.5,0.5) rectangle (1,1);   
+\begin{scope}[xshift=-1cm]
+\draw[thick,fill=white,opacity=0.5] (0,0) rectangle (0.5,0.5);  
+\draw[thick,fill=white,opacity=0.5] (0,0.5) rectangle (.5,1);  
+\draw[thick,fill=white,opacity=0.5] (0.5,0) rectangle (1,.5);  
+\draw[thick,fill=white,opacity=0.5] (0.5,0.5) rectangle (1,1);
+\end{scope}     
+\begin{scope}[xshift=1cm]
+\draw[thick,fill=white,opacity=0.5] (0,0) rectangle (0.5,0.5);  
+\draw[thick,fill=white,opacity=0.5] (0,0.5) rectangle (.5,1);   
+\end{scope}   
+\begin{scope}[yshift=-1cm]
+\draw[thick,fill=white,opacity=0.5] (0,0) rectangle (0.5,0.5);  
+\draw[thick,fill=white,opacity=0.5] (0,0.5) rectangle (.5,1);  
+\draw[thick,fill=white,opacity=0.5] (0.5,0) rectangle (1,.5);  
+\draw[thick,fill=white,opacity=0.5] (0.5,0.5) rectangle (1,1);   
+\begin{scope}[xshift=-1cm]
+\draw[thick,fill=white,opacity=0.5] (0,0) rectangle (0.5,0.5);  
+\draw[thick,fill=white,opacity=0.5] (0,0.5) rectangle (.5,1);  
+\draw[thick,fill=white,opacity=0.5] (0.5,0) rectangle (1,.5);  
+\draw[thick,fill=white,opacity=0.5] (0.5,0.5) rectangle (1,1);
+\end{scope}   
+\begin{scope}[xshift=1cm]
+\draw[thick,fill=white,opacity=0.5] (0,0) rectangle (0.5,0.5);  
+\draw[thick,fill=white,opacity=0.5] (0,0.5) rectangle (.5,1);   
+\end{scope} \end{scope}   
+\node at (-1.25,1) {$a)$};	
+\end{scope}
+\draw[thick,fill=red,opacity=0.5] (0.5,-1) rectangle (1.5,1); 
+\draw[thick,fill=blue,opacity=0.5] (-1,-1) rectangle (1.5,-0.5); 
+
+\end{tikzpicture}
+\end{center}
+\end{minipage}%  
+\begin{minipage}{0.74\textwidth} 
+
+$40\%$ vom Rechteck sind $\fib{100000}$ markiert. $25\%$ vom Rechteck sind $\fib{100000}$ markiert. $\fib{100000}$ vom Rechteck sind rot und blau markiert.
+
+\end{minipage}%    
+
+\vspace{1.5em}
+
+\begin{minipage}{0.25\textwidth} 
+
+\begin{center}
+\begin{tikzpicture}[scale=1,>=latex]
+
+
+\begin{scope}[xshift=0cm]
+\draw[thick,fill=white,opacity=0.5] (0,0) rectangle (0.5,0.5);  
+\draw[thick,fill=white,opacity=0.5] (0,0.5) rectangle (.5,1);     
+\begin{scope}[xshift=-1cm]
+\draw[thick,fill=white,opacity=0.5] (0,0) rectangle (0.5,0.5);  
+\draw[thick,fill=white,opacity=0.5] (0,0.5) rectangle (.5,1);  
+\draw[thick,fill=white,opacity=0.5] (0.5,0) rectangle (1,.5);  
+\draw[thick,fill=white,opacity=0.5] (0.5,0.5) rectangle (1,1);
+\end{scope}    
+\begin{scope}[yshift=-1cm]
+\draw[thick,fill=white,opacity=0.5] (0,0) rectangle (0.5,0.5);  
+\draw[thick,fill=white,opacity=0.5] (0,0.5) rectangle (.5,1);    
+\begin{scope}[xshift=-1cm]
+\draw[thick,fill=white,opacity=0.5] (0,0) rectangle (0.5,0.5);  
+\draw[thick,fill=white,opacity=0.5] (0,0.5) rectangle (.5,1);  
+\draw[thick,fill=white,opacity=0.5] (0.5,0) rectangle (1,.5);  
+\draw[thick,fill=white,opacity=0.5] (0.5,0.5) rectangle (1,1);
+\end{scope}      
+\end{scope}  
+\node at (-1.25,1) {$b)$};	
+\end{scope}
+\draw[thick,fill=red,opacity=0.5] (-1,-1) rectangle (0,1); 
+\draw[thick,fill=blue,opacity=0.5] (-1,-1) rectangle (0.5,-0.5); 
+
+\end{tikzpicture}
+\end{center}
+
+\end{minipage}%    
+\begin{minipage}{0.74\textwidth} 
+
+
+$25\%$ vom Rechteck sind $\fib{100000}$ markiert. $66,\bar{6}\%$ vom Rechteck sind $\fib{100000}$ markiert. $\fib{100000}$ von den blau markierten sind auch rot markiert, also sind $\fib{100000}$ vom Rechteck rot und blau markiert.
+
+\end{minipage}%    
+   
+ 
+\vspace{3em}
+
+
+ 
+
+\newpage
+
+ 
+\begin{table*}[htbp]
+\centering
+    \begin{tabular}{ c  c  c  }
+     IQSH-Handreichung & \qquad\qquad\qquad\qquad\qquad\qquad\qquad  \qquad\qquad\qquad\quad  & Prozentrechnung 		 \\ \hline\hline
+    \end{tabular}
+\end{table*} \vspace{-1.25em}
+
+\begin{center}
+\Large \textbf{- Erarbeitung von prozentualen Anteilen -} \\
+\end{center} 
+
+\vspace{0.75em}
+
+
+
+\begin{minipage}{0.1\textwidth}
+\includegraphics[width=0.4 \textwidth]{Kompass.png} 
+\includegraphics[width=0.4 \textwidth]{Work.png}   \vspace{5em}
+\end{minipage}%
+\hfill 
+\begin{minipage}{0.89\textwidth}
+\textbf{Aufgabe 8:} Bei einer Umfrage gaben $16,7\%$ der Personen die Antwort $G$, $8,3\%$ die Antwort $K$,  $37,5\%$ die Antwort $F$,  $25\%$ die Antwort $B$ und  $9,7\%$ die Antwort $N$ an. Gib an, welches Kreisdiagramm den Sachzusammenhang richtig darstellt und begründe, warum die anderen beiden Optionen nicht richtig sein können.
+\end{minipage}%   
+
+
+\begin{minipage}{0.33\textwidth}
+
+\begin{center}
+\begin{tikzpicture}[scale=0.9]
+    \foreach \start/\end/\middle/\percent/\anchor		/\color		/\name			/\smeter in 	{
+							0			/36		/30			/25{,}0		 /above			/blue!		/a 						/1 				,
+							36		/130	/105		/32{,}0		/above			/red!			/b						/1 						,
+							130		/230	/165		/15{,}5		/below			/green!		/c						/1 						,
+							230		/280	/255		/10{,}5		/right			/orange!	/d						/1 						,
+							280		/360	/340  	/17{,}0		/right			/pink!		/e						/1 						}
+  {
+    \draw[fill=\color , opacity=0.25 , thick] (0,0) -- (\end:2.4cm) arc (\end:\start:2.4cm)
+      node[opacity=0.99] at (\middle:1.85cm) { }; 
+		\node (A) at (\middle:2.99cm)   {$$};
+  };
+	\end{tikzpicture}
+\end{center}
+
+
+\end{minipage}%
+\begin{minipage}{0.33\textwidth}
+
+\begin{center}
+\begin{tikzpicture}[scale=0.9]
+    \foreach \start/\end/\middle/\percent/\anchor		/\color		/\name			/\smeter in 	{
+							0			/60		/30			/25{,}0		 /above			/blue!		/a 						/1 				,
+							60		/150	/105		/32{,}0		/above			/red!			/b						/1 						,
+							150		/180	/165		/15{,}5		/below			/green!		/c						/1 						,
+							180		/315	/255		/10{,}5		/right			/orange!	/d						/1 						,
+							315		/360	/340  	/17{,}0		/right			/pink!		/e						/1 						}
+  {
+    \draw[fill=\color , opacity=0.25 , thick] (0,0) -- (\end:2.4cm) arc (\end:\start:2.4cm)
+      node[opacity=0.99] at (\middle:1.85cm) { }; 
+		\node (A) at (\middle:2.99cm)   {$$};
+  };
+	\end{tikzpicture}
+\end{center}
+
+
+\end{minipage}%
+\begin{minipage}{0.33\textwidth}
+
+\begin{center}
+\begin{tikzpicture}[scale=0.9]
+    \foreach \start/\end/\middle/\percent/\anchor		/\color		/\name			/\smeter in 	{
+							0			/160		/30			/25{,}0		 /above			/blue!		/a 						/1 				,
+							160		/200	/105		/32{,}0		/above			/red!			/b						/1 						,
+							200		/270	/165		/15{,}5		/below			/green!		/c						/1 						,
+							270		/300	/255		/10{,}5		/right			/orange!	/d						/1 						,
+							300		/360	/340  	/17{,}0		/right			/pink!		/e						/1 						}
+  {
+    \draw[fill=\color , opacity=0.25 , thick] (0,0) -- (\end:2.4cm) arc (\end:\start:2.4cm)
+      node[opacity=0.99] at (\middle:1.85cm) { }; 
+		\node (A) at (\middle:2.99cm)   {$$};
+  };
+	\end{tikzpicture}
+\end{center}
+
+
+\end{minipage}%
+
+
+\vspace{1em}
+
+
+
+\begin{minipage}{0.04\textwidth}
+\includegraphics[width=0.99 \textwidth]{Puzzle.png}    \vspace{2em}
+\end{minipage}%
+\hfill 
+\begin{minipage}{0.95\textwidth}
+\textbf{Aufgabe 9:} Lies die Behauptungen zum Diagramm zur Darstellung einer Wahl im Vergleich zur letzten Wahl und kreuze wahr, falsch oder nicht bestimmbar an. Begründe deine Wahl. 
+\end{minipage}%   
+
+
+\begin{center}
+\begin{tikzpicture}[scale=1.0,>=latex]
+ 
+  \coordinate (o) at (0,0);
+  \coordinate (y) at (0,5.25);
+    \coordinate (x) at (10.25,0);
+    \draw[<->, black!100, thick] (y) node[above] {Stimmenanteil in $\%$} -- (0,0) --  (x) node[right]
+    {Partei};
+
+\draw[-, black!100, thin]  (0,0.1) -- (0,-0.1) node[below=0.25cm,left] {0};
+\draw[-, black!100, thin]  (1.9,0.1) -- (1.9,-0.1) node[below] {$A$};
+\draw[-, black!100, thin]  (4.9,0.1) -- (4.9,-0.1) node[below] {$B$};
+\draw[-, black!100, thin]  (7.9,0.1) -- (7.9,-0.1) node[below] {$C$}; 
+\draw[-, black!100, thin]  (10,1) -- (-0.1,1) node[left] {$$};
+\draw[-, black!100, thin]  (10,3) -- (-0.1,3) node[left] {$$};
+\draw[-, black!100, thin]  (10,5) -- (-0.1,5) node[left] {$$};
+\draw[-, black!100, thin,densely dotted]  (10,1.5) -- (-0.1,1.5) node[left] {$$};
+\draw[-, black!100, thin,densely dotted]  (10,3.5) -- (-0.1,3.5) node[left] {$$}; 
+\draw[-, black!100, thin,densely dotted]  (10,2.5) -- (-0.1,2.5) node[left] {$$};
+\draw[-, black!100, thin,densely dotted]  (10,4.5) -- (-0.1,4.5) node[left] {$$};
+\draw[-, black!100, thin,densely dotted]  (10,0.5) -- (-0.1,0.5) node[left] {$$};
+\draw[-, black!100, thin]  (10,2) -- (-0.1,2) node[left] {$20$};
+\draw[-, black!100, thin]  (10,4) -- (-0.1,4) node[left] {$40$}; 
+ 
+\draw[fill=blue, opacity=0.4] (1,0) rectangle (1.8,4.4) ;
+\node[rotate=90] at (1.4,1) {2016};
+\draw[fill=blue, opacity=0.6] (2,0) rectangle (2.8,4.8) ;
+\node[rotate=90] at (2.4,1) {2020};
+\draw[fill=red, opacity=0.4] (4,0) rectangle (4.8,3.6) ;
+\node[rotate=90] at (4.4,1) {2016};
+\draw[fill=red, opacity=0.6] (5,0) rectangle (5.8,2.1) ;
+\node[rotate=90] at (5.4,1) {2020};
+\draw[fill=orange, opacity=0.4] (7,0) rectangle (7.8,1.6) ;
+\node[rotate=90] at (7.4,1) {2016};
+\draw[fill=orange, opacity=0.6] (8,0) rectangle (8.8,2.4) ;
+\node[rotate=90] at (8.4,1) {2020};
+
+	\end{tikzpicture}
+\end{center}
+
+
+
+    \begin{tabular}{ |c||c|c|c|  }\hline
+     Behauptung & Wahr  & Falsch & Nicht bestimmbar 		 \\ \hline\hline
+    $2016$ hat die Partei $B$ mehr als doppelt so    &    &     &     		 \\  
+     viele Stimmen wie die Partei $C$ bekommen.  &    &     &     		 \\ \hline
+    Die Partei $A$ bekam $2020$ mehr Stimmen als $2016$.   &    &     &     		 \\ \hline
+     $2020$  hat die Partei $A$ weniger Stimmen als   &    &     &     		 \\  
+     die Parteien $B$ und $C$ zusammen bekommen.  &    &     &     		 \\ \hline
+    Die Wahlen scheinen den Zahlen nach gültig zu sein.   &    &     &     		 \\ \hline 
+    \end{tabular}
+
+
+
+
+
+
+
+ 
+
+
+
+
+\end{document}
